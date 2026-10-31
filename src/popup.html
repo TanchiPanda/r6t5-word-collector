@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="popup.css">
+<title>R6T5 单词收藏夹</title>
+</head>
+<body>
+  <header>
+    <div class="logo">⭐ R6T5 单词收藏夹</div>
+    <div class="sub">词典页点「收藏」后在此整理，再同步到词书</div>
+  </header>
+
+  <section class="target">
+    <label>归入词书名称
+      <input id="bookName" placeholder="例如：我的课外单词" value="我的收藏">
+    </label>
+    <label>课时名称
+      <input id="levelName" placeholder="LV1" value="LV1">
+    </label>
+    <div class="tip">桥接页会按名称找到已有词书/课时，没有则自动新建。</div>
+  </section>
+
+  <section class="queue-wrap">
+    <div class="row-head">
+      <span>待收藏 <b id="count">0</b> 词</span>
+      <button id="clearBtn" class="link danger" type="button">清空</button>
+    </div>
+    <div id="queue" class="queue"><div class="empty">还没有收藏，去词典页点 ⭐</div></div>
+  </section>
+
+  <footer>
+    <button id="syncBtn" class="primary" type="button">同步到游戏词书 →</button>
+    <div id="status" class="status"></div>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
