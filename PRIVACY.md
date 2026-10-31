@@ -12,8 +12,8 @@
 ## 权限说明
 - `storage`：仅用于在本机暂存待整理的收藏队列，供弹窗读取/编辑。
 - 内容脚本仅注入以下词典页面用于显示收藏按钮并读取当前词条：
-  - 必应词典 `cn.bing.com/dict`、`www.bing.com/dict`
-  - 有道词典 `dict.youdao.com`、`www.youdao.com`
+  - 必应词典 `*.bing.com/dict/*`（含 global/cn/www 等各地区入口）
+  - 有道词典 `dict.youdao.com`、`www.youdao.com`（/w/ 与 /result 检索页）
 - 扩展**不申请**读取其他网站数据、不申请跨站网络请求权限、不索取主机权限（host_permissions 为空）。
 
 ## 数据删除
