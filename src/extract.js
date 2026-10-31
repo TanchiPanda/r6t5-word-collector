@@ -2,9 +2,21 @@
 // 目标：从词典页面提取 {en, phonetic, pos, cn}，抓不到的字段留空，交给 popup 手填。
 // 策略：多选择器候选 + 正则启发 + 划词/URL 参数兜底，不绑定单一 class（站点会改版）。
 
-const RC_POS = /(^|[\s;；,，])(vt|vi|v|n|adj|adv|prep|conj|pron|num|int|aux|art|abbr|phr|a|ad)\.?/i;
+// 词性只认行首缩写（避免英文冠词 a / an 误判）
+const RC_POS_START = /^(vt|vi|v|n|adj|adv|prep|conj|pron|num|int|aux|art|abbr|phr|ad)\.?[\s;；:：]/i;
 // 音标：/ˈæp(ə)l/ 、[æpəl]、英/ ˈæp(ə)l / 美/ ... /
 const RC_PHON = /[\/\[]([^\s\/\[\]]{2,30}?)[\/\]]/g;
+
+// 中文释义在第一个连续英文字母处截断，剥掉英文例句尾巴
+function rcStripEnglishTail(s) {
+  const m = s.match(/^[\s\S]*?[一-龥；;，,、.\s]/);
+  if (!m) return "";
+  let head = m[0];
+  // head 末尾若紧跟英文，说明英文从这里开始；截取到最后一个中文/标点
+  const tail = head.match(/[一-龥；;，,、.]+/g);
+  if (!tail) return "";
+  return tail.join("").replace(/[；;，,、.]+$/, "");
+}
 
 function rcDetectSite() {
   const h = location.hostname;
@@ -85,14 +97,23 @@ function rcSplitPos(text) {
   const out = { pos: [], cn: [] };
   const lines = text.split(/[\n;；]/).map(s => s.trim()).filter(Boolean);
   for (let line of lines) {
-    const m = line.match(RC_POS);
+    // 行首词性（v. / n. / adj. 等）
+    const m = line.match(RC_POS_START);
     if (m) {
-      out.pos.push(m[2].toLowerCase().replace(/\.$/, "") + ".");
-      // 去掉词性前缀后的中文
-      const cn = line.replace(RC_POS, "").replace(/^[\s:：.、]+/, "").trim();
-      if (cn) out.cn.push(cn);
-    } else if (line) {
-      out.cn.push(line);
+      out.pos.push(m[1].toLowerCase().replace(/\.$/, "") + ".");
+      // 去掉词性前缀，再剥掉英文例句尾巴
+      let rest = line.slice(m[0].length).trim();
+      rest = rcStripEnglishTail(rest) || rest;
+      // 兜底再截一次：从第一个英文字母处截断
+      const enIdx = rest.search(/[A-Za-z]/);
+      if (enIdx > 0) rest = rest.slice(0, enIdx).replace(/[\s;；,，.、]+$/, "");
+      if (rest) out.cn.push(rest);
+    } else if (/[一-龥]/.test(line)) {
+      // 纯中文行（如"网络 搅拌法"），剥掉英文尾巴
+      let rest = rcStripEnglishTail(line) || line;
+      const enIdx = rest.search(/[A-Za-z]/);
+      if (enIdx > 0) rest = rest.slice(0, enIdx).replace(/[\s;；,，.、]+$/, "");
+      if (rest) out.cn.push(rest);
     }
   }
   return {
@@ -111,11 +132,17 @@ function rcExtractPosCn() {
     containerText = rcPickText([".basic-trans", ".trans-container", "#phrsListTab", ".wordcard-body", ".dict-content"]);
   }
   if (!containerText && document.body) {
-    // 兜底：取 body 里含词性缩写的行
+    // 兜底：只取"行首词性"或"纯中文短行"，避开英文例句
     containerText = document.body.innerText
       .split("\n")
-      .filter(l => RC_POS.test(l) && /[一-龥]/.test(l))
-      .slice(0, 12)
+      .filter(l => {
+        const t = l.trim();
+        if (!t) return false;
+        if (RC_POS_START.test(t)) return true;       // v. / n. / adj. 开头
+        if (/[一-龥]/.test(t) && t.length < 40) return true; // 短中文行
+        return false;
+      })
+      .slice(0, 15)
       .join("\n");
   }
   return rcSplitPos(containerText || "");
