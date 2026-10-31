@@ -12,7 +12,7 @@
   },
   "icons": {"16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png"},
   "content_scripts": [{
-    "matches": ["https://cn.bing.com/dict/*","https://www.bing.com/dict/*","https://dict.youdao.com/*","https://www.youdao.com/w/*","https://www.youdao.com/result*","https://youdao.com/result*"],
+    "matches": ["https://*.bing.com/dict/*","https://dict.youdao.com/*","https://www.youdao.com/w/*","https://www.youdao.com/result*","https://youdao.com/result*"],
     "js": ["src/extract.js", "src/content.js"],
     "run_at": "document_idle",
     "all_frames": false
