@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "R6T5 单词收藏夹",
+  "short_name": "单词收藏",
+  "version": "0.1.0",
+  "description": "在必应词典、有道词典页面一键收藏单词（音标/词性/词义），编辑后归入你的自定义词书，同步到单词闯关。",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "R6T5 单词收藏夹",
+    "default_icon": {"16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png"}
+  },
+  "icons": {"16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png"},
+  "content_scripts": [{
+    "matches": ["https://cn.bing.com/dict/*","https://www.bing.com/dict/*","https://dict.youdao.com/*","https://www.youdao.com/w/*","https://www.youdao.com/result*","https://youdao.com/result*"],
+    "js": ["src/extract.js", "src/content.js"],
+    "run_at": "document_idle",
+    "all_frames": false
+  }],
+  "host_permissions": []
+}
