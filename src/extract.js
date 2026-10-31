@@ -35,7 +35,8 @@ function rcExtractEn() {
   const site = rcDetectSite();
   let en = "";
   if (site === "bing") {
-    en = rcPickText([
+    // 必应词典 URL 形如 /dict/search?q=Stir，q 最可靠；选择器作补充
+    en = rcUrlWord() || rcPickText([
       "#dict_pw_1", ".q", ".hd_tp1 strong", "h1 .txt_20b43",
       ".b_promtxt", ".df_txt h2", "h2.tp1"
     ]);
@@ -74,7 +75,7 @@ function rcExtractPhonetic() {
     const m = body.match(RC_PHON);
     if (m) raw = m[0];
   }
-  // 规整：保留 /.../
+  // 规整：保留 /.../ 或 [...]
   const mm = raw.match(/[\/\[][^\s\/\[\]]{2,30}?[\/\]]/);
   return mm ? mm[0] : (raw || "");
 }
